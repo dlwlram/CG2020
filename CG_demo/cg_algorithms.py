@@ -133,7 +133,32 @@ def draw_ellipse(p_list):
         result.append((mx-x,my-y))
     return result
 
+def fac(n):
+    if n == 0 or n == 1:
+        return 1
+    else:
+        return (n * fac(n - 1))
 
+def draw_Bezier(dot_list, t, n):
+    t_list1 = []
+    t_list2 = []
+    t_list1.append(1)
+    t_list2.append(1)
+    i = 1
+    while i < n:
+        t_list1.append(t_list1[i - 1] * t)
+        t_list2.append(t_list2[i - 1] * (1 - t))
+        i += 1
+    x = 0
+    y = 0
+    i = 0
+    while i < n:
+        xi, yi = dot_list[i]
+        x += (fac(n - 1) / (fac(i) * fac(n - 1 - i))) * xi * t_list2[n - i - 1] * t_list1[i]
+        y += (fac(n - 1) / (fac(i) * fac(n - 1 - i))) * yi * t_list2[n - i - 1] * t_list1[i]
+        i += 1
+    res = (x, y)
+    return res
 
 def draw_curve(p_list, algorithm):
     """绘制曲线
@@ -142,7 +167,24 @@ def draw_curve(p_list, algorithm):
     :param algorithm: (string) 绘制使用的算法，包括'Bezier'和'B-spline'（三次均匀B样条曲线，曲线不必经过首末控制点）
     :return: (list of list of int: [[x_0, y_0], [x_1, y_1], [x_2, y_2], ...]) 绘制结果的像素点坐标列表
     """
-    
+    result = []
+    if algorithm == 'Bezier':
+        t = 0.0
+        length = len(p_list)
+        step = 1 / (length * 200)
+        if length == 1:
+            result.append(p_list[0])
+        else:
+            while t < 1.0:
+                dot_list = p_list.copy()
+                x, y = draw_Bezier(dot_list, t, length)
+                result.append((int(x + 0.5), int(y + 0.5)))
+                t += step
+
+        return result
+
+    elif algorithm == 'B-spline':
+        pass
 
 
 def translate(p_list, dx, dy):
