@@ -160,6 +160,15 @@ def draw_Bezier(dot_list, t, n):
     res = (x, y)
     return res
 
+def draw_Bspline(dot_list, t, k):
+    f0 = 1/6 * ((1 - t)**3)
+    f1 = 1/6 * (3 * (t**3) - 6 * (t**2) + 4)
+    f2 = 1/6 * (-3 * (t**3) + 3 * (t**2) + 3 * t + 1)
+    f3 = 1/6 * (t**3)
+
+    return f0 * dot_list[k] + f1 * dot_list[k + 1] + f2 * dot_list[k + 2] + f3 * dot_list[k + 3]
+
+
 def draw_curve(p_list, algorithm):
     """绘制曲线
 
@@ -168,9 +177,9 @@ def draw_curve(p_list, algorithm):
     :return: (list of list of int: [[x_0, y_0], [x_1, y_1], [x_2, y_2], ...]) 绘制结果的像素点坐标列表
     """
     result = []
+    length = len(p_list)
     if algorithm == 'Bezier':
         t = 0.0
-        length = len(p_list)
         step = 1 / (length * 200)
         if length == 1:
             result.append(p_list[0])
@@ -184,7 +193,29 @@ def draw_curve(p_list, algorithm):
         return result
 
     elif algorithm == 'B-spline':
-        pass
+        if length <= 3:
+            return []
+        else:
+            x = []
+            y = []
+            for i in range(length):
+                x0, y0 = p_list[i]
+                x.append(x0)
+                y.append(y0)
+            for k in range(0, length-3):
+                t = 0.0
+                step = 1 / 500
+                while t < 1.0:
+                    rx = 0.0
+                    ry = 0.0
+                    rx += draw_Bspline(x, t, k)
+                    ry += draw_Bspline(y, t, k)
+                    result.append((int(rx + 0.5), int(ry + 0.5)))
+                    t += step
+        
+        return result
+
+
 
 
 def translate(p_list, dx, dy):
